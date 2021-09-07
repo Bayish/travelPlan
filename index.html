@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/easy-autocomplete.themes.css"/>
+    <link rel="stylesheet" href="css/easy-autocomplete.css"/>
+    <link rel="stylesheet" href="css/jquery-ui.css"/>
+    <link rel="stylesheet" href="fonts/font-awasome/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css"/>
+    <script src="js/jquery-3.6.0.js"></script>
+    <script src="js/jquery.easy-autocomplete.js"></script>
+    <script src="js/jquery-ui.js"></script>
+    <script>
+        $(() => {
+            const url = 'https://restcountries.eu/rest/v2/all?fields=name;capital;flag';
+
+            $.get(url, countries => {
+                const options = {
+                    data: countries,
+                    getValue: 'name',
+                    theme: 'square',
+                    list: {match: {enabled: true}},
+                    template: {
+                        type: "iconLeft",
+                        fields: {
+                            iconSrc: "flag"
+                        },
+                    },
+                };
+
+                $('#countries').easyAutocomplete(options);
+            });
+
+            $(function () {
+                $("#datepicker").datepicker();
+            });
+
+            let generalArray = [];
+            const generalDiv = $('#comments-block__inner');
+            generalDiv.css({
+                margin: '10px'
+            });
+
+            if(localStorage.getItem('comment') !== null) {
+                generalArray = (JSON.parse(localStorage.getItem('comment') || '[ ]'));
+            };
+            if(generalArray.length > 0){
+                for(let i = 0; i < generalArray.length; i++) {
+                    const ul = $('<ul>').append(generalArray[i].numberPost)
+                                    .append(generalArray[i].date)
+                                    .append(generalArray[i].country)
+                                    .append($('<button>Remove</button>>').addClass('remove').on('click',() => {
+                                        generalArray.splice(generalArray[i], 1)
+                                    }))
+                                    .css({
+                                        color: '#76b2be',
+                                        fontSize: '18px',
+                                        padding: '20px 10px 10px 30px',
+                                        borderBottom: '1px solid #76b2be'
+                                    });
+                    const divInner = $('<div>').addClass('divInner')
+                        .append(ul)
+                        .append(generalArray[i].text)
+                        .css({marginBottom: '20px', border: '1px solid #76b2be'});
+
+                    generalDiv.append(divInner);
+                }
+            }
+
+
+
+
+            $('#btn').on('click', () => {
+                const date = $('#datepicker').val();
+                const country = $('#countries').val();
+                const text = $('#textarea').val();
+
+                const data = {
+                    numberPost: 'Post #' + (generalArray.length + 1),
+                    date: $('<li>').text(' at ' + date + '  '),
+                    country: $('<li>').text('   being in ' + country),
+                    text: $('<div>').append($('<p>').text(text).css({color: '#76b2be', padding: '0px 10px 10px 30px'})),
+                };
+                generalArray.push(data);
+                const ul = $('<ul>').append(data.numberPost)
+                    .append(data.date)
+                    .append(data.country)
+                    .append($('<button>Remove</button>>').addClass('remove').on('click',() => {
+                        generalArray.splice(generalArray[data], 1)
+                    }))
+                    .css({
+                        color: '#76b2be',
+                        fontSize: '18px',
+                        padding: '20px 10px 10px 30px',
+                        borderBottom: '1px solid #76b2be'
+                    })
+                const divInner = $('<div>').addClass('divInner')
+                    .append(ul)
+                    .append(data.text)
+                    .css({marginBottom: '20px', border: '1px solid #76b2be'});
+
+                generalDiv.append(divInner);
+                $('#textarea').val('');
+            });
+            console.log(generalArray)
+            const setItem = localStorage.setItem('comment', JSON.stringify(generalArray));
+
+        });
+    </script>
+</head>
+<body>
+<div class="header">
+    <div class="container header__top">
+        <div class="header__logo">
+            <a href="#" class="logo">Site name</a>
+        </div>
+        <div class="header__nav">
+            <nav class="nav">
+                <ul class="nav__list">
+                    <li class="nav__item"><a href="#" class="nav__links">Home</a></li>
+                    <li class="nav__item"><a href="#" class="nav__links">About</a></li>
+                    <li class="nav__item"><a href="#" class="nav__links">Work</a></li>
+                    <li class="nav__item"><a href="#" class="nav__links">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+<div class="center-block">
+    <div class="container">
+        <h2 class="center-block__head">
+            You can save comments about countries where have been.
+        </h2>
+    </div>
+</div>
+<div class="main-block">
+    <div class="container">
+        <div class="main-block__inner">
+            <div class="main-block__choose-country">
+                <p>Choose your country: <input type="text" id="countries" class="main-block__country-input"/></p>
+            </div>
+            <div class="main-block__datepicker">
+                <p>Choose your date: <input type="text" id="datepicker" class="main-block__datepicker-input"></p>
+            </div>
+        </div>
+        <div class="main-block__text-area">
+            <textarea name="" id="textarea" placeholder="Write here you comment"></textarea>
+            <button type="button" id="btn"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="paper-plane" class="svg-inline--fa fa-paper-plane fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="#fff" d="M476 3.2L12.5 270.6c-18.1 10.4-15.8 35.6 2.2 43.2L121 358.4l287.3-253.2c5.5-4.9 13.3 2.6 8.6 8.3L176 407v80.5c0 23.6 28.5 32.9 42.5 15.8L282 426l124.6 52.2c14.2 6 30.4-2.9 33-18.2l72-432C515 7.8 493.3-6.8 476 3.2z"></path></svg></button>
+        </div>
+    </div>
+</div>
+<div class="comments-block">
+    <div class="container comment">
+        <div id="comments-block__inner"></div>
+    </div>
+</div>
+<footer class="footer">
+    <div class="container">
+        <div class="footer__inner">
+            <p>Site name</p>
+        </div>
+    </div>
+</footer>
+</body>
+</html>
+
+<!--    const ul = $('<ul>').append(data.numberPost)
+                    .append(data.date)
+                    .append(data.country)
+                    .css({
+                        color: '#76b2be',
+                        fontSize: '18px',
+                        padding: '20px 10px 10px 30px',
+                        borderBottom: '1px solid #76b2be'
+                    })
+                const divInner = $('<div>').addClass('divInner')
+                                            .append(ul)
+                                            .append(data.text)
+                                            .css({marginBottom: '20px', border: '1px solid #76b2be'});
+
+                generalDiv.append(divInner);
+                $('#textarea').val('');-->
